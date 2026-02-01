@@ -35,3 +35,33 @@ export async function POST(request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function DELETE(request) {
+  try {
+    const { searchParams } = request.nextUrl;
+    const boardId = searchParams.get("boardId");
+
+    if (!boardId) {
+      return NextResponse.json({ error: "Name is required" }, { status: 400 });
+    }
+
+    const session = await auth();
+
+    if (!session) {
+      return NextResponse.json({ error: "Not authorised" }, { status: 401 });
+    }
+
+    await Board.deleteOne({
+      _id: boardId,
+      userId: session?.user?.id,
+    });
+
+    const user = await User.findById(session?.user?.id);
+    user.boards = user.boards.filter((id) => id.toString() !== boardId);
+    await user.save();
+
+    return NextResponse.json({});
+  } catch (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

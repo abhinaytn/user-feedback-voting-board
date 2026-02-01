@@ -1,3 +1,4 @@
+import Link from "next/link";
 import ButtonLogout from "@/components/ButtonLogout";
 import FormNewBoard from "@/components/FormNewBoard";
 import { auth } from "@/auth";
@@ -10,7 +11,10 @@ async function getUser() {
 
   await connectMongo();
 
-  return await User.findById(session.user.id).populate({path: 'boards', model: Board});
+  return await User.findById(session.user.id).populate({
+    path: "boards",
+    model: Board,
+  });
 }
 
 export default async function Dashboard() {
@@ -36,8 +40,13 @@ export default async function Dashboard() {
           <ul className="space-y-4">
             {user.boards.map((board) => {
               return (
-                <li key={board._id} className="bg-base-100 p-6 rounded-3xl">
-                  {board.name}
+                <li key={board._id}>
+                  <Link
+                    href={`/dashboard/b/${board._id}`}
+                    className="block bg-base-100 p-6 rounded-3xl hover:bg-netral hover:text-neutral-content duration-200"
+                  >
+                    {board.name}
+                  </Link>
                 </li>
               );
             })}
